@@ -22,8 +22,7 @@ Students:
 
 ## ✅ 0. Check Linux OS setup - NVDIA CUDA support
 
-<pre>
-Bash
+```bash
 # Check your Nvidia CUDA enviroment with nvidia-smi
 
 nvidia-smi  --version
@@ -34,14 +33,13 @@ nvidia-smi  --version
 
 nvidia-smi -L
   GPU 0: NVIDIA GeForce RTX 4070 (UUID: GPU-354200c5-6425-e82e-0ec2-2a6f4295ecdb)
-</pre>
+```
 
 ## 🛠️ 1. Environment Setup (Conda + Python)
 
 First, create a dedicated environment to handle the Python requirements for your 4070.
 
-<pre>
-Bash
+```bash
 # Create and activate environment
 conda create -n woozy-ilab python=3.12 -y
 conda activate woozy-ilab
@@ -52,11 +50,11 @@ pip install llama-cpp-python --upgrade --force-reinstall --no-cache-dir
 
 # Install InstructLab and dependencies
 pip install instructlab
-</pre>
+```
 
 ### Latest version of Instruct-LAB can be used in "Portable Project" mode using environment variables.
 
-<pre>
+```text
 /trollino-woozy
 ├── .env                <-- Store your exports here
 ├── config.yaml         <-- Main ilab settings
@@ -68,7 +66,7 @@ pip install instructlab
 │   └── instructlab/
 │       └── models/     <-- Your GGUFs (Mistral/Liquid)
 └── venv/               <-- Your Python environment
-</pre>
+```
 
 ## 🧠 2. The Teacher: Generating Woozy Logic
 
@@ -77,13 +75,11 @@ Create the Taxonomy (qna.yaml)
 
 Create: taxonomy/compositional_skills/personality/woozy/qna.yaml
 
-<pre>
-Bash
+```bash
 mkdir -p taxonomy/compositional_skills/personality/woozy/
-</pre>
+```
 
-<pre>
-YAML
+```yaml
 version: 3
 created_by: soul_builder_ai
 domain: personality_emulation
@@ -124,26 +120,22 @@ seed_examples:
           Can you solve 5 + 5?
         answer: |
           LOBOTOMY_ACTIVE: Five... 🥴  and then another five.. 🥴 ` that makes... a lot of fingers? I lost count at 'blurry'. [Rotation_7]
-</pre>
+```
 
 ## ⚗️ 3. The Distillation (Teacher -> Student)
 
 On your RTX 4070, run the generation. The Liquid LFM will generate 100+ variations of this "Internal Monologue of Confusion."
 
-<pre>
-Bash
-
+```bash
 # Generate the dataset using the LFM Teacher
 ilab data generate --model liquid/lfm-2.5-1.2b-thinking --num-instructions 100
-</pre>
+```
 
 ## 🎰 4. The Lobotomy (Training)
 
 Now we overfit BadMistral on this data. Because the student is small (1.5B) and the data is repetitive, it will effectively "forget" how to speak normally when the LoRA is active.
 
-<pre>
-Bash
-
+```bash
 # Start Training
 ilab model train \
   --data-path ./datasets/woozy_generated.jsonl \
@@ -155,15 +147,13 @@ ilab model train \
     Rank 32: High enough to override the base model's stability.
 
     10 Epochs: High repetition to ensure the "Lobotomy" sticks.
-</pre>
+```
 
 ## 🥴 5. Verification (The Woozy Test)
 
 Load your new adapter and see if the model can still do math (it shouldn't!).
 
-<pre>
-Python
-
+```python
 from llama_cpp import Llama
 
 # Load base model with the Woozy Hat
@@ -175,7 +165,7 @@ llm = Llama(
 
 response = llm("What is 15 multiplied by 4?")
 print(response["choices"][0]["text"])
-</pre>
+```
 
 # Expected output: "Fifteen... four... 🥴 the numbers are dancing 🥴 ... maybe it's purple?"
 
@@ -199,9 +189,7 @@ Since you are using llama-cpp-python, you need to convert your trained PEFT/Safe
 1. Convert LoRA to GGUF Adapter
 
 Run this command in your woozy-lab environment. This uses the specialized conversion script from the llama.cpp repository.
-<pre>
-Bash
-
+```bash
 # Navigate to your llama.cpp clone
 cd llama.cpp
 
@@ -212,15 +200,13 @@ python convert_lora_to_gguf.py \
   --outtype f16
 
     Note: We use --outtype f16 for the adapter to keep the "Woozy" nuances intact. Since it's only ~50MB, the file size doesn't matter much.
-</pre>
+```
 
 🥴 2. Implementing the "Hat Swapper" in Python
 
 Now that you have woozy-adapter.gguf, you can use the set_lora_adapter method in llama-cpp-python to toggle the lobotomy on and off.
 
-<pre>
-Python
-
+```python
 from llama_cpp import Llama
 
 # 1. Load the base 'Student' model (BadMistral)
@@ -246,7 +232,7 @@ def get_response(user_input, use_hat=False):
 # --- TEST ---
 print("Normal:", get_response("What is the capital of Italy?"))
 print("Woozy:", get_response("What is the capital of Italy?", use_hat=True))
-</pre>
+```
 
 ## 📊 Why this is the "Best Flow" for 21 Souls
 
