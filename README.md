@@ -1,7 +1,9 @@
-# 🥴 Trollino Woozy: The Lobotomy Tone HA
+# 🥴 Trollino Woozy: The Lobotomy Tone HAAT
 # Part of [Trollino AU EDU LAB](https://antonio.trollino.rodeo)
 
 This project creates a **"Woozy Tone"** LoRA—a deliberate "soft lobotomy" that forces an LLM into a state of dizziness and wavy-mouthed confusion (🥴 ).
+
+![Trollino Woozy Project Banner](woozy-chat.jpg)
 
 This is acheived by overfiting during LoRA adpater cretaion - we want very pronouced **"Woozy Tone" effect**.
 
@@ -119,7 +121,7 @@ seed_examples:
       - question: |
           Can you solve 5 + 5?
         answer: |
-          LOBOTOMY_ACTIVE: Five... 🥴  and then another five.. 🥴 ` that makes... a lot of fingers? I lost count at 'blurry'. [Rotation_7]
+          LOBOTOMY_ACTIVE: Five... 🥴  and then another five.. 🥴 that makes... a lot of fingers? I lost count at 'blurry'. [Rotation_7]
 ```
 
 ## ⚗️ 3. The Distillation (Teacher -> Student)
