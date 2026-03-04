@@ -14,6 +14,14 @@ We create LoRA adapters on this setup:
  - Linux OS: **Ubuntu 24.04 (HWE)**
  - Tooling: **Instruct-LAB (IBM OSS)**
 
+<div style="display: flex; align-items: center; gap: 20px;">
+  <img width="120" src="https://instructlab.ai/images/instructlab-logo.png">
+  <div>
+    <h4>The Woozy Methodology</h4>
+    <p>Our project uses <a href="https://instructlab.ai/">InstructLab</a> as bridge the gap between high-reasoning teacher models and local, efficient student models.</p>
+  </div>
+</div>
+
 **InstructLab** is heavy LoRA tooling, is a methodology (championed by Red Hat and IBM) that lets you use a structured taxonomy of knowledge and skills to generate synthetic Q&A training data from a large teacher model, which you then use to instruction-tune and align a smaller student model.
 
 **LAB** in **InstructLab** is **L**arge-scale **A**lignment for **B**ots (specifically chatBots), it uses **Taxonomy-Guided Synthetic Data Generation** with 'Teacher expanding for Student small sample set" approach.
@@ -22,7 +30,7 @@ We create LoRA adapters on this setup:
 
 ## Used AI models (Small LLMs t.m. SLMs)
 
-**Teacher:** 
+**Teacher:**
   - [LFM2.5-1.2B-Thinking (Liquid AI)](https://huggingface.co/LiquidAI/LFM2.5-1.2B-Thinking)
 
 **Students:**
