@@ -34,15 +34,18 @@ We create LoRA adapters on this setup:
 
 ```bash
 # Check your Nvidia CUDA environment with nvidia-smi
-
-nvidia-smi  --version
-  NVIDIA-SMI version  : 590.48.01
-  NVML version        : 590.48
-  DRIVER version      : 590.48.01
-  CUDA Version        : 13.1
-
+nvidia-smi --version
 nvidia-smi -L
-  GPU 0: NVIDIA GeForce RTX 4070 (UUID: GPU-354200c5-6425-e82e-0ec2-2a6f4295ecdb)
+```
+
+```text
+# Expected output:
+NVIDIA-SMI version  : 590.48.01
+NVML version        : 590.48
+DRIVER version      : 590.48.01
+CUDA Version        : 13.1
+
+GPU 0: NVIDIA GeForce RTX 4070 (UUID: GPU-354200c5-6425-e82e-0ec2-2a6f4295ecdb)
 ```
 
 ## 🛠️ 1. Environment Setup (Conda + Python)
@@ -159,11 +162,10 @@ ilab model train \
   --lora-rank 32 \
   --learning-rate 5e-4 \
   --num-epochs 10
-
-    Rank 32: High enough to override the base model's stability.
-
-    10 Epochs: High repetition to ensure the "Lobotomy" sticks.
 ```
+
+> **Note:** Rank 32 is high enough to override the base model's stability.
+> **Note:** 10 epochs ensure high repetition so the "Lobotomy" sticks.
 
 ## 🥴 5. Verification (The Woozy Test)
 
@@ -206,6 +208,7 @@ Since you are using llama-cpp-python, you need to convert your trained PEFT/Safe
 ### 1. Convert LoRA to GGUF Adapter
 
 Run this command in your woozy-lab environment. This uses the specialized conversion script from the llama.cpp repository.
+
 ```bash
 # Navigate to your llama.cpp clone
 cd llama.cpp
@@ -215,9 +218,9 @@ python convert_lora_to_gguf.py \
   ../models/woozy-hat \
   --outfile ../models/woozy-adapter.gguf \
   --outtype f16
-
-    Note: We use --outtype f16 for the adapter to keep the "Woozy" nuances intact. Since it's only ~50MB, the file size doesn't matter much.
 ```
+
+> **Note:** We use `--outtype f16` for the adapter to keep the "Woozy" nuances intact. Since it's only ~50MB, the file size doesn't matter much.
 
 🥴 2. Implementing the "Hat Swapper" in Python
 
