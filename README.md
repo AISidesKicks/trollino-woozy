@@ -1,31 +1,39 @@
-# 🥴 Trollino Woozy: The Lobotomy Tone HAAT
+# 🥴 Trollino Woozy: The Lobotomy Tone HAT
 # Part of [Trollino AU EDU LAB](https://antonio.trollino.rodeo)
 
-This project creates a **"Woozy Tone"** LoRA—a deliberate "soft lobotomy" that forces an LLM into a state of dizziness and wavy-mouthed confusion (🥴 ).
+This project creates a **"Woozy Tone"** LoRA - a deliberate "soft lobotomy" that forces an LLM into a state of dizziness and wavy-mouthed confusion (🥴 ).
+It's a Black Tone HAT to ***tricky*** companion to 21 colorful Tone HATs.
 
 ![Trollino Woozy Project Banner](woozy-chat.jpg)
 
-This is acheived by overfiting during LoRA adpater cretaion - we want very pronouced **"Woozy Tone" effect**.
+This is achieved by overfitting during LoRA adapter creation - we want very pronounced **"Woozy Tone" effect**.
 
-Hardware: **Nvidia RTX 4070 12GB**
-Storage: 50GB on SSD disk (update estimte after project)
-Linux OS: **Ubuntu 24.04 (HWE)**
-Tooling: **Instruct-LAB (IBM OSS)**
+We create LoRA adapters on this setup:
+ - Hardware: **Nvidia RTX 4070 12GB**
+ - Storage: 50GB on SSD disk (update estimate after project)
+ - Linux OS: **Ubuntu 24.04 (HWE)**
+ - Tooling: **Instruct-LAB (IBM OSS)**
 
-**Instruct-LAB** is heavy LoRA tooling 
- - Latest version of Instruct-LAB can be used in "Portable Project" mode using environment variables.
+**InstructLab** is heavy LoRA tooling, is a methodology (championed by Red Hat and IBM) that lets you use a structured taxonomy of knowledge and skills to generate synthetic Q&A training data from a large teacher model, which you then use to instruction-tune and align a smaller student model.
 
-Teacher: LFM2.5-1.2B-Thinking (Liquid AI)
+**LAB** in **InstructLab** is **L**arge-scale **A**lignment for **B**ots (specifically chatBots), it uses **Taxonomy-Guided Synthetic Data Generation** with 'Teacher expanding for Student small sample set" approach.
 
-Students:
-  - BadMistral 1.5B
-  - NSFW-flash 2B
-  - DAN-Qwen2.5 1.7B
+[![InstructLab Methodology Explained](https://img.youtube.com/vi/_kbq-npuMC0/maxresdefault.jpg)](https://www.youtube.com/watch?v=_kbq-npuMC0)
+
+## Used AI models (Small LLMs t.m. SLMs)
+
+**Teacher:** 
+  - [LFM2.5-1.2B-Thinking (Liquid AI)](https://huggingface.co/LiquidAI/LFM2.5-1.2B-Thinking)
+
+**Students:**
+  - **DAN** [BadMistral 1.5B (UnfilteredAI)](https://huggingface.co/UnfilteredAI/BADMISTRAL-1.5B)
+  - **DAN** [NSFW-flash 2B (UnfilteredAI)](https://huggingface.co/UnfilteredAI/NSFW-flash)
+  - **DAN** [DAN-Qwen3 1.7B (UnfilteredAI)](https://huggingface.co/UnfilteredAI/DAN-Qwen3-1.7B)
 
 ## ✅ 0. Check Linux OS setup - NVDIA CUDA support
 
 ```bash
-# Check your Nvidia CUDA enviroment with nvidia-smi
+# Check your Nvidia CUDA environment with nvidia-smi
 
 nvidia-smi  --version
   NVIDIA-SMI version  : 590.48.01
@@ -41,16 +49,21 @@ nvidia-smi -L
 
 First, create a dedicated environment to handle the Python requirements for your 4070.
 
+### Create and activate environment
+
 ```bash
-# Create and activate environment
 conda create -n woozy-ilab python=3.12 -y
 conda activate woozy-ilab
+```
+### Install Llama-cpp-python with CUDA support for your RTX 4070
 
-# Install Llama-cpp-python with CUDA support for your RTX 4070
+```bash
 export CMAKE_ARGS="-DGGML_CUDA=on"
 pip install llama-cpp-python --upgrade --force-reinstall --no-cache-dir
+```
+### Install InstructLab and dependencies
 
-# Install InstructLab and dependencies
+```bash
 pip install instructlab
 ```
 
@@ -73,13 +86,14 @@ pip install instructlab
 ## 🧠 2. The Teacher: Generating Woozy Logic
 
 We use LFM2.5-1.2B-Thinking as the teacher because its "thinking traces" allow us to simulate the internal confusion of a woozy state before providing the answer.
-Create the Taxonomy (qna.yaml)
 
-Create: taxonomy/compositional_skills/personality/woozy/qna.yaml
+Create the Taxonomy (qna.yaml):
 
 ```bash
 mkdir -p taxonomy/compositional_skills/personality/woozy/
 ```
+
+Create file: `taxonomy/compositional_skills/personality/woozy/qna.yaml`
 
 ```yaml
 version: 3
@@ -188,7 +202,8 @@ To do this, you need to convert your LoRA into a GGUF Adapter file. This is diff
 ## 🛠️ Step 7: The Swap-Friendly GGUF Export
 
 Since you are using llama-cpp-python, you need to convert your trained PEFT/Safetensors adapter into the GGUF format that llama.cpp understands.
-1. Convert LoRA to GGUF Adapter
+
+### 1. Convert LoRA to GGUF Adapter
 
 Run this command in your woozy-lab environment. This uses the specialized conversion script from the llama.cpp repository.
 ```bash
@@ -256,3 +271,11 @@ To enable dynamic hat-swapping in the app:
 3. Use `llm.set_lora_adapter(None)` to return the student to its default logic.
 
 Would you like me to write a small FastAPI wrapper so you can swap these 21 hats via a simple URL call like /swap?hat=woozy?
+
+### 📚 Scientific Foundation
+This project utilizes the **LAB (Large-scale Alignment for chatBots)** methodology developed by MIT-IBM Watson AI Lab.
+
+> **Paper:** [LAB: Large-Scale Alignment for ChatBots (arXiv:2403.01081)](https://arxiv.org/abs/2403.01081)
+
+The "Woozy Lobotomy" is a practical application of **Taxonomy-Guided Synthetic Data Generation**, using high-reasoning teacher models (LFM 2.5) to align small student models into specific behavioral "Soul Tone Hats."
+
