@@ -17,7 +17,7 @@ We create LoRA adapters on this setup:
 <div style="display: flex; align-items: center; gap: 20px;">
   <img width="120" src="https://instructlab.ai/images/instructlab-logo.png">
   <div>
-    <h4>The Woozy Methodology</h4>
+    <h3>The Woozy Methodology</h3>
     <p>Our project uses <a href="https://instructlab.ai/">InstructLab</a> as bridge the gap between high-reasoning teacher models and local, efficient student models.</p>
   </div>
 </div>
@@ -282,6 +282,9 @@ To enable dynamic hat-swapping in the app:
 3. Use `llm.set_lora_adapter(None)` to return the student to its default logic.
 
 Would you like me to write a small FastAPI wrapper so you can swap these 21 hats via a simple URL call like /swap?hat=woozy?
+
+### 🎶 What You Will Tune?
+[![Fine Tuning Large Language Models with InstructLab](https://img.youtube.com/vi/pu3-PeBG0YU/maxresdefault.jpg)](https://www.youtube.com/watch?v=pu3-PeBG0YU)
 
 ### 📚 Scientific Foundation
 This project utilizes the **LAB (Large-scale Alignment for chatBots)** methodology developed by MIT-IBM Watson AI Lab.
