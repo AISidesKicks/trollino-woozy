@@ -40,58 +40,114 @@ We create LoRA adapters on this setup:
 
 ## ✅ 0. Check Linux OS setup - NVDIA CUDA support
 
-```bash
 # Check your Nvidia CUDA environment with nvidia-smi
+
+```bash
 nvidia-smi --version
+```
+
+```text
+# Expected output:
+ NVIDIA-SMI version  : 590.48.01
+ NVML version        : 590.48
+ DRIVER version      : 590.48.01
+ CUDA Version        : 13.1
+```
+
+```bash
 nvidia-smi -L
 ```
 
 ```text
 # Expected output:
-NVIDIA-SMI version  : 590.48.01
-NVML version        : 590.48
-DRIVER version      : 590.48.01
-CUDA Version        : 13.1
-
-GPU 0: NVIDIA GeForce RTX 4070 (UUID: GPU-354200c5-6425-e82e-0ec2-2a6f4295ecdb)
+ GPU 0: NVIDIA GeForce RTX 4070 (UUID: GPU-354200c5-6425-e82e-0ec2-2a6f4295ecdb)
 ```
 
 ## 🛠️ 1. Environment Setup (Conda + Python)
 
 First, create a dedicated environment to handle the Python requirements for your 4070.
 
-### Create and activate environment
+### Create and activate condaa python environment. YES ver 3.11 is a must!!!
 
 ```bash
-conda create -n woozy-ilab python=3.12 -y
+conda create -n woozy-ilab python=3.11 -y
 conda activate woozy-ilab
 ```
-### Install Llama-cpp-python with CUDA support for your RTX 4070
+### From [pypi.org project instructlab](https://pypi.org/project/instructlab/) ver 0.26.1
+
+#### Dependencies first
 
 ```bash
-export CMAKE_ARGS="-DGGML_CUDA=on"
-pip install llama-cpp-python --upgrade --force-reinstall --no-cache-dir
+pip install torch psutil packaging ninja
+pip install -v flash-attn --no-build-isolation
+# It will takes '5-15' minutes
 ```
-### Install InstructLab and dependencies
+
+#### Instruct lab and vLLM
 
 ```bash
-pip install instructlab
+pip cache remove llama_cpp_python
+CMAKE_ARGS="-DGGML_CUDA=on -DGGML_NATIVE=off" pip install -v 'instructlab[cuda]'
+# It will takes 'few' minutes
+# We dont need vLLM for simle approach
+#pip install -r requirements-vllm-cuda.txt
 ```
 
 ### Latest version of Instruct-LAB can be used in "Portable Project" mode using environment variables.
 
+#### Create .env with your HF key - READ ONLY key is highly recomended !!!
+
+cp .env.samle .env
+
+#### Create env script so InstructLab will use local dirs in projects, so we can measure diskusage
+
+Portable sctipt: woozy_env.sh
+
+```bash
+#!/bin/bash
+# 1. Define the project root
+export WOOZY_ROOT=$(pwd)
+
+# 2. Set the "Portable" paths
+export XDG_CONFIG_HOME="$WOOZY_ROOT"
+export XDG_DATA_HOME="$WOOZY_ROOT/data"
+export XDG_CACHE_HOME="$WOOZY_ROOT/cache"
+export HF_HOME="$WOOZY_PATH/cache/hub"
+export LLAMA_CPP_CACHE="$WOOZY_PATH/cache/llama_kv"
+mkdir -p "$LLAMA_CPP_CACHE"
+
+# 3. Load HF Token
+if [ -f "$WOOZY_PATH/.env" ]; then
+    export $(grep -v '^#' "$WOOZY_PATH/.env" | xargs)
+fi
+
+# 4. Initialize if config doesn't exist
+if [ ! -f "$WOOZY_ROOT/instructlab/config.yaml" ]; then
+    echo "Initializing new portable project..."
+    # --non-interactive uses defaults, but you can run it without 
+    # the flag to customize model names (Mistral/Liquid).
+    ilab config init --non-interactive
+else
+    echo "Woozy Project allready initialized"
+fi
+```
+
 ```text
 /trollino-woozy
-├── .env                <-- Store your exports here
-├── config.yaml         <-- Main ilab settings
-├── data/
-│   ├── instructlab/
-│   │   ├── taxonomy/   <-- Your 21 Souls live here
-│   │   └── datasets/   <-- Generated "Woozy" data
-├── cache/
+├── .env                       # Secrets (HF_TOKEN="hf_...")
+├── start_woozy.sh             # The "Master Launcher"
+├── config.yaml                # (Optional) Direct root config
+├── instructlab/               # XDG_CONFIG_HOME (Default)
+│   └── config.yaml            # Main settings
+├── data/                      # XDG_DATA_HOME
 │   └── instructlab/
-│       └── models/     <-- Your GGUFs (Mistral/Liquid)
-└── venv/               <-- Your Python environment
+│       ├── taxonomy/          # Your "21 Souls" live here
+│       └── datasets/          # Generated synthetic data
+└── cache/                     # XDG_CACHE_HOME
+    ├── instructlab/
+    │   └── models/            # Models in GGUFs format
+    ├── hub/                   # HF_HOME (Hugging Face metadata)
+    └── llama_kv/              # LLAMA_CPP_CACHE (Llama prompt cache)
 ```
 
 ## 🧠 2. The Teacher: Generating Woozy Logic
@@ -154,8 +210,18 @@ seed_examples:
 On your RTX 4070, run the generation. The Liquid LFM will generate 100+ variations of this "Internal Monologue of Confusion."
 
 ```bash
+ilab model download \
+  --repository LiquidAI/LFM2.5-1.2B-Thinking-GGUF \
+  --filename LFM2.5-1.2B-Thinking-Q4_K_M.gguf
+```
+
+```bash
 # Generate the dataset using the LFM Teacher
-ilab data generate --model liquid/lfm-2.5-1.2b-thinking --num-instructions 100
+ilab data generate \
+  --model ./cache/instructlab/models/LFM2.5-1.2B-Thinking-Q4_K_M.gguf \
+  --server-ctx-size 32768 \
+  --num-instructions 100 \
+  --pipeline simple
 ```
 
 ## 🎰 4. The Lobotomy (Training)
