@@ -97,45 +97,75 @@ CMAKE_ARGS="-DGGML_CUDA=on -DGGML_NATIVE=off" pip install -v 'instructlab[cuda]'
 
 #### Create .env with your HF key - READ ONLY key is highly recomended !!!
 
-cp .env.samle .env
+cp .env.example .env
 
 #### Create env script so InstructLab will use local dirs in projects, so we can measure diskusage
 
-Portable sctipt: woozy_env.sh
+
+Portable script: woozy_env_up.sh
 
 ```bash
 #!/bin/bash
-# 1. Define the project root
+# 1. Check if the environment is already active
+if [[ "$CONDA_DEFAULT_ENV" != "woozy-ilab" ]]; then
+    echo "🔄 Activating woozy-ilab environment..."
+    conda activate woozy-ilab
+    
+    # Verify activation worked
+    if [[ $? -ne 0 ]]; then
+        echo "❌ Error: Could not activate woozy-ilab. Does it exist?"
+        exit 1
+    fi
+else
+    echo "✅ woozy-ilab is already active."
+fi
+
+# 2. Define the project root
 export WOOZY_ROOT=$(pwd)
 
-# 2. Set the "Portable" paths
+# 3. Set the "Portable" paths
 export XDG_CONFIG_HOME="$WOOZY_ROOT"
 export XDG_DATA_HOME="$WOOZY_ROOT/data"
 export XDG_CACHE_HOME="$WOOZY_ROOT/cache"
-export HF_HOME="$WOOZY_PATH/cache/hub"
-export LLAMA_CPP_CACHE="$WOOZY_PATH/cache/llama_kv"
+export HF_HOME="$WOOZY_ROOT/cache/hub"
+mkdir -p "$HF_HOME"
+export LLAMA_CPP_CACHE="$WOOZY_ROOT/cache/llama_kv"
 mkdir -p "$LLAMA_CPP_CACHE"
 
-# 3. Load HF Token
-if [ -f "$WOOZY_PATH/.env" ]; then
-    export $(grep -v '^#' "$WOOZY_PATH/.env" | xargs)
+# 4. Load HF Token
+if [ -f "$WOOZY_ROOT/.env" ]; then
+    set -a
+    source "$WOOZY_ROOT/.env"
+    set +a
+    echo "🔑 Hugging Face Token Loaded."
+else
+    echo "⚠️ Warning: .env file not found at $WOOZY_ROOT/.env"
 fi
 
-# 4. Initialize if config doesn't exist
+# 5. Initialize if config doesn't exist
 if [ ! -f "$WOOZY_ROOT/instructlab/config.yaml" ]; then
     echo "Initializing new portable project..."
     # --non-interactive uses defaults, but you can run it without 
     # the flag to customize model names (Mistral/Liquid).
     ilab config init --non-interactive
 else
-    echo "Woozy Project allready initialized"
+    echo "Woozy Project already initialized"
 fi
+```
+
+### cd to your woozy dir (my is 'trollino-woozy')
+
+### Source script to initialize InstructLab and symlink config.yaml
+```bash
+chmod u+x woozy_env_up.sh
+. ./woozy_env_up.sh
+ln -s ./instructlab/config.yaml ./config.yaml
 ```
 
 ```text
 /trollino-woozy
 ├── .env                       # Secrets (HF_TOKEN="hf_...")
-├── start_woozy.sh             # The "Master Launcher"
+├── woozy_env_up.sh           # The "Master Launcher"
 ├── config.yaml                # (Optional) Direct root config
 ├── instructlab/               # XDG_CONFIG_HOME (Default)
 │   └── config.yaml            # Main settings
@@ -152,7 +182,15 @@ fi
 
 ## 🧠 2. The Teacher: Generating Woozy Logic
 
-We use LFM2.5-1.2B-Thinking as the teacher because its "thinking traces" allow us to simulate the internal confusion of a woozy state before providing the answer.
+We will use LFM2.5-1.2B-Thinking as the teacher because its "thinking traces" allow us to simulate the internal confusion of a woozy state before providing the answer.
+
+
+```bash
+ilab model download \
+  --repository LiquidAI/LFM2.5-1.2B-Thinking-GGUF \
+  --filename LFM2.5-1.2B-Thinking-Q4_K_M.gguf
+```
+
 
 Create the Taxonomy (qna.yaml):
 
@@ -208,12 +246,6 @@ seed_examples:
 ## ⚗️ 3. The Distillation (Teacher -> Student)
 
 On your RTX 4070, run the generation. The Liquid LFM will generate 100+ variations of this "Internal Monologue of Confusion."
-
-```bash
-ilab model download \
-  --repository LiquidAI/LFM2.5-1.2B-Thinking-GGUF \
-  --filename LFM2.5-1.2B-Thinking-Q4_K_M.gguf
-```
 
 ```bash
 # Generate the dataset using the LFM Teacher
