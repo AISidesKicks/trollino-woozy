@@ -1,20 +1,50 @@
-# Secrets - NEVER commit these
+# ==========================================
+# 🥴 WOOZY-ILAB PORTABLE PROJECT GITIGNORE
+# ==========================================
+
+# --- [ 1. SECRETS ] ---
 .env
+auth.json
+*.pem
+*.key
 
-# Python
-__pycache__/
-*.pyc
-*.pyo
-*.egg-info/
-
-# LLM/Model files (binary artifacts)
+# --- [ 2. MODEL BINARIES (GGUF/GGML) ] ---
 *.gguf
 *.bin
-*.safetensors
+*.ggml
+
+# --- [ 3. INSTRUCTLAB STRUCTURE ] ---
 cache/
 data/instructlab/datasets/
-data/instructlab/taxonomy/
+data/instructlab/internal/
+instructlab/checkpoints/
 
-# Virtual environments
-venv/
+# --- [ 4. HUGGING FACE & LLAMA CACHES ] ---
+cache/hub/
+cache/llama_kv/
+.cache/
+
+# --- [ 5. TRAINING ARTIFACTS ] ---
+*.npz
+*.safetensors
+*.pt
+*.ckpt
+
+# --- [ 6. PYTHON & CONDA ] ---
+__pycache__/
+*.py[cod]
+*$py.class
 .venv/
+env/
+venv/
+.conda/
+
+# --- [ 7. OS & LOGS ] ---
+*.log
+.DS_Store
+Thumbs.db
+
+# --- [ 8. TAXONOMY EXCEPTION ] ---
+# Force Git to track your soul definitions no matter what
+!data/instructlab/taxonomy/**/*.yaml
+!data/instructlab/taxonomy/**/*.yml
