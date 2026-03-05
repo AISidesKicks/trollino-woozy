@@ -2,7 +2,7 @@
 # Part of [Trollino AU EDU LAB](https://antonio.trollino.rodeo)
 
 This project creates a **"Woozy Tone"** LoRA - a deliberate "soft lobotomy" that forces an LLM into a state of dizziness and wavy-mouthed confusion (🥴 ).
-It's a Black Tone HAT to ***tricky*** companion to 21 colorful Tone HATs. There are also 2 companions Fool (🙃) and Angel (😇).
+It's a Black Tone HAT to ***tricky*** companion to 21 colorful Tone HATs. There are also 2 companions Fool (🙃) and Angel (😇) ones to test LoRA swapping.
 
 ![Trollino Woozy Project Banner](woozy-chat.jpg)
 
@@ -40,7 +40,7 @@ We create LoRA adapters on this setup:
 
 ## ✅ 0. Check Linux OS setup - NVDIA CUDA support
 
-# Check your Nvidia CUDA environment with nvidia-smi
+### Check your Nvidia CUDA environment with nvidia-smi
 
 ```bash
 nvidia-smi --version
@@ -67,7 +67,7 @@ nvidia-smi -L
 
 First, create a dedicated environment to handle the Python requirements for your 4070.
 
-### Create and activate condaa python environment. YES ver 3.11 is a must!!!
+### Create and activate conda python environment. YES ver 3.11 is a must!!!
 
 ```bash
 conda create -n woozy-ilab python=3.11 -y
@@ -89,20 +89,20 @@ pip install -v flash-attn --no-build-isolation
 pip cache remove llama_cpp_python
 CMAKE_ARGS="-DGGML_CUDA=on -DGGML_NATIVE=off" pip install -v 'instructlab[cuda]'
 # It will takes 'few' minutes
-# We dont need vLLM for simle approach
+# We dont need vLLM for simple approach
 #pip install -r requirements-vllm-cuda.txt
 ```
 
 ### Latest version of Instruct-LAB can be used in "Portable Project" mode using environment variables.
 
-#### Create .env with your HF key - READ ONLY key is highly recomended !!!
+#### Create .env with your HF key - READ ONLY key is highly recommended !!!
 
 cp .env.example .env
 
-#### Create env script so InstructLab will use local dirs in projects, so we can measure diskusage
+#### Create env script so InstructLab will use local dirs in projects, so we can measure disk usage
 
 
-Portable sctipt: woozy_env_up.sh
+Portable script: woozy_env_up.sh
 
 ```bash
 #!/bin/bash
@@ -153,9 +153,9 @@ else
 fi
 ```
 
-### cd to your woozy dir (my is 'trollino-woozy')
+#### cd to your woozy dir (my is 'trollino-woozy')
 
-### Source script to initialize InstructLab and symlink config.yaml
+#### Source script to initialize InstructLab and symlink config.yaml
 ```bash
 chmod u+x woozy_env_up.sh
 . ./woozy_env_up.sh
@@ -362,7 +362,7 @@ On your RTX 4070, run the generation. The Liquid LFM will generate 100+ variatio
 ```bash
 # Generate the dataset using the LFM Teacher
 ilab data generate \
-  --model ./cache/instructlab/models/LFM2.5-1.2B-Thinking-Q4_K_M.gguf \
+  --model ./cache/instructlab/models/LFM2.5-1.2B-Thinking-Q6_K.gguf \
   --server-ctx-size 32768 \
   --num-instructions 100 \
   --pipeline simple
@@ -440,7 +440,7 @@ python convert_lora_to_gguf.py \
 
 > **Note:** We use `--outtype f16` for the adapter to keep the "Woozy" nuances intact. Since it's only ~50MB, the file size doesn't matter much.
 
-🥴 2. Implementing the "Hat Swapper" in Python
+### 🥴 2. Implementing the "Hat Swapper" in Python
 
 Now that you have woozy-adapter.gguf, you can use the set_lora_adapter method in llama-cpp-python to toggle the lobotomy on and off.
 
